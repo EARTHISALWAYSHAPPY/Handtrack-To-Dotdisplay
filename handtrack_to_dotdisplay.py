@@ -8,8 +8,8 @@ cam = cv2.VideoCapture(0)
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands()
 mp_drawing = mp.solutions.drawing_utils
-# USB-to-serial (UART)
-# board_nanon = serial.Serial("COM5", 9600)
+# USB-to-serial
+nano = serial.Serial("COM3", 115200)
 
 
 data_landmark = {}
@@ -28,7 +28,7 @@ my_landmarks = [
 ]
 
 
-def Normalized():
+def Normalized(image, hand_landmarks):
     # Normalized pixel
     image_height = image.shape[0]  # y-axis
     image_width = image.shape[1]  # x-axis
@@ -37,12 +37,12 @@ def Normalized():
             x = hand_landmarks.landmark[landmarks].x * image_width
             y = hand_landmarks.landmark[landmarks].y * image_height
             data_landmark[landmarks.name] = {"X": x, "Y": y}
-    return data_landmark
     # print("Chech Data:", data_landmark)
-    # time.sleep(2)
+    # time.sleep(1)
+    return data_landmark
 
 
-def process():
+def process(data_landmark, image):
     wrist_x = data_landmark["WRIST"]["X"]
     wrist_y = data_landmark["WRIST"]["Y"]
     thumb_mcp_x = data_landmark["THUMB_MCP"]["X"]
@@ -65,11 +65,16 @@ def process():
     pinky_pip_y = data_landmark["PINKY_PIP"]["Y"]
     pinky_tip_x = data_landmark["PINKY_TIP"]["X"]
     pinky_tip_y = data_landmark["PINKY_TIP"]["Y"]
+
     # goodjob
     if (
         wrist_x > thumb_mcp_x > thumb_tip_x > index_finger_tip_x > index_finger_pip_x
     ) and (pinky_pip_y > wrist_y > ring_finger_tip_y > thumb_mcp_y > thumb_tip_y):
         print("goodjob")
+        cv2.putText(
+            image, "Goodjob", (50, 50), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4
+        )
+        nano.write(bytes("A", "utf-8"))
 
     # fighting
     if (
@@ -78,19 +83,25 @@ def process():
         wrist_y > thumb_mcp_y > pinky_pip_y > ring_finger_pip_y > middle_finger_pip_y
     ):
         print("fighting")
+        cv2.putText(
+            image, "Fighting", (50, 50), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4
+        )
+        nano.write(bytes("B", "utf-8"))
 
     # love
-    if (thumb_tip_x > middle_finger_pip_x > wrist_x > pinky_tip_x > pinky_pip_x) and (
+    if (pinky_pip_x > ring_finger_tip_x > middle_finger_tip_x > thumb_tip_x) and (
         wrist_y
-        > ring_finger_tip_y
         > thumb_mcp_y
-        > middle_finger_pip_y
-        > index_finger_tip_y
+        > middle_finger_tip_y
         > thumb_tip_y
+        > pinky_pip_y
+        > pinky_tip_y
     ):
         print("love")
+        cv2.putText(image, "love", (50, 50), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4)
+        nano.write(bytes("C", "utf-8"))
 
-    # 5 star
+    # star
     if (
         pinky_tip_x
         > ring_finger_tip_x
@@ -106,7 +117,11 @@ def process():
         > ring_finger_pip_y
         > index_finger_tip_y
     ):
-        print("5 star")
+        print("star")
+        cv2.putText(
+            image, "star", (50, 50), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4
+        )
+        nano.write(bytes("D", "utf-8"))
 
 
 while True:
@@ -132,8 +147,8 @@ while True:
                 mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=4),  # joints
                 mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=4),  # lines
             )
-        Normalized()
-        process()
+        Normalized(image, hand_landmarks)
+        process(data_landmark, image)
     cv2.imshow("Cam", image)
 
     # Exit Program
