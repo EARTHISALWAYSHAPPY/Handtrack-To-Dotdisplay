@@ -8,8 +8,8 @@ cam = cv2.VideoCapture(0)
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands()
 mp_drawing = mp.solutions.drawing_utils
-# USB-to-serial
-nano = serial.Serial("COM3", 115200)
+# USB-to-serial : select serial ports & baudrate
+nano = serial.Serial("COM6", 115200)
 
 
 data_landmark = {}

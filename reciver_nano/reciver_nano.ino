@@ -40,6 +40,9 @@ byte star[8] = {
   B10011001,
   B11100111
 };
+unsigned long lastTime = 0;
+const unsigned long Delay = 1000;
+
 void setup() {
   Serial.begin(115200);
   DDRD |= B01110000;
@@ -47,9 +50,6 @@ void setup() {
   lc.setIntensity(0, 5);
   lc.clearDisplay(0);
 }
-
-unsigned long lastTime = 0;
-const unsigned long Delay = 1000;
 
 void loop() {
   check_process();
@@ -71,6 +71,12 @@ void check_process() {
       preCommand = '\0';
     }
   }
+}
+
+void turnOff() {
+  PORTD &= B11101111;
+  PORTD &= B11011111;
+  PORTD &= B10111111;
 }
 
 void process(char command) {
@@ -95,11 +101,7 @@ void process(char command) {
       break;
   }
 }
-void turnOff() {
-  PORTD &= B11101111;
-  PORTD &= B11011111;
-  PORTD &= B10111111;
-}
+
 void show_goodjob() {
   for (int i = 0; i < 8; i++) lc.setRow(0, i, goodjob[i]);
 }
