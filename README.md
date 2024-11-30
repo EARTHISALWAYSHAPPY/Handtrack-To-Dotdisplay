@@ -1,2 +1,3 @@
 ﻿# Handtrack-To-Dotdisplay-
-![Untitled design](https://github.com/user-attachments/assets/b0f6d43a-a98c-47ad-8165-f16afd4f6464)
+![Untitled design](https://github.com/user-attachments/assets/57c525a0-b8bf-4158-82f5-2feadda0762e)
+
